@@ -2,6 +2,7 @@ package com.mindconnect.socialmedia.PostService.service;
 
 import com.mindconnect.socialmedia.PostService.dto.*;
 import com.mindconnect.socialmedia.PostService.entity.PostEntity;
+import com.mindconnect.socialmedia.PostService.exception.ResourceNotFoundException;
 import com.mindconnect.socialmedia.PostService.mapper.PostServiceMapper;
 import com.mindconnect.socialmedia.PostService.repository.PostRepository;
 import org.springframework.stereotype.Service;
@@ -22,9 +23,9 @@ public class PostService {
     }
 
     public GetPostResponseDTO getPostDetailsByPostId(String postId) {
-        PostEntity postEntity = postRepository.findById(postId).orElse(null);
+        PostEntity postEntity = postRepository.findById(postId)
+                .orElseThrow(()-> new ResourceNotFoundException("Unable to found PostId"));
 
-        if (postEntity == null) return null;
         return PostServiceMapper.toGetPostResponseDTO(postEntity);
     }
 
@@ -32,18 +33,20 @@ public class PostService {
         List<PostEntity> postEntities = postRepository.findAllPostsByUserId(userId);
         List<GetPostResponseDTO> getPostResponseDTOList = new ArrayList<>();
 
-        if (postEntities != null && !postEntities.isEmpty()) {
-            for (PostEntity postEntity: postEntities) {
-                getPostResponseDTOList.add(PostServiceMapper.toGetPostResponseDTO(postEntity));
-            }
+        if (postEntities == null || postEntities.isEmpty()) {
+            throw new ResourceNotFoundException("Unable to find post(s) for this user");
+        }
+
+        for (PostEntity postEntity: postEntities) {
+            getPostResponseDTOList.add(PostServiceMapper.toGetPostResponseDTO(postEntity));
         }
 
         return new GetAllPostResponseDTO(getPostResponseDTOList);
     }
 
     public UpdatePostResponseDTO updatePostByPostId(String postId, UpdatePostRequestDTO requestDTO) {
-        PostEntity post = postRepository.findById(postId).orElse(null);
-        if (post == null) return null;
+        PostEntity post = postRepository.findById(postId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Unable to find the post"));
 
         post.setContent(requestDTO.getContent());
         post.setAttachments(requestDTO.getAttachments());
