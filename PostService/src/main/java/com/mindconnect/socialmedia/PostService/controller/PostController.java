@@ -7,9 +7,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Validated
 @RequestMapping("/api/posts")
 public class PostController {
     private final PostService postService;
@@ -21,16 +23,16 @@ public class PostController {
 
     // To get post details, postId is mandatory
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<GetPostResponseDTO>> getPostDetailsByPostId(@PathVariable String postId) {
+    public ResponseEntity<ApiResponse<GetPostResponseDTO>> getPostDetailsByPostId(@PathVariable("postId") @NotBlank(message = "PostId must be valid") String postId) {
         GetPostResponseDTO responseDTO = postService.getPostDetailsByPostId(postId);
         return ResponseEntity.ok(new ApiResponse<>(true, responseDTO, "Post retrieved successfully"));
     }
 
     // To create a post
     @PostMapping
-    public ResponseEntity<CreatePostResponseDTO> createPost(@Valid @RequestBody CreatePostRequestDTO requestDTO) {
+    public ResponseEntity<ApiResponse<CreatePostResponseDTO>> createPost(@Valid @RequestBody CreatePostRequestDTO requestDTO) {
         CreatePostResponseDTO responseDTO = postService.createPost(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, responseDTO, "Post created."));
     }
 
     // To get all the posts of a particular user
@@ -43,7 +45,7 @@ public class PostController {
 
     // To update a post
     @PutMapping("/{postId}")
-    public ResponseEntity<ApiResponse<UpdatePostResponseDTO>> updatePostByPostId(@PathVariable("postId") @NotBlank(message = "PostId must not be blank") String postId, @RequestBody UpdatePostRequestDTO requestDTO) {
+    public ResponseEntity<ApiResponse<UpdatePostResponseDTO>> updatePostByPostId(@PathVariable("postId") @NotBlank(message = "PostId must not be blank") String postId, @Valid @RequestBody UpdatePostRequestDTO requestDTO) {
         UpdatePostResponseDTO responseDTO = postService.updatePostByPostId(postId, requestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, responseDTO, "Updation is done"));
     }
