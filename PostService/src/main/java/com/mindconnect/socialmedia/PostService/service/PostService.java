@@ -41,7 +41,7 @@ public class PostService {
         return new GetAllPostResponseDTO(getPostResponseDTOList);
     }
 
-    public CreatePostResponseDTO updatePostByPostId(String postId, UpdatePostRequestDTO requestDTO) {
+    public UpdatePostResponseDTO updatePostByPostId(String postId, UpdatePostRequestDTO requestDTO) {
         PostEntity post = postRepository.findById(postId).orElse(null);
         if (post == null) return null;
 
@@ -51,6 +51,6 @@ public class PostService {
 
         PostEntity savedPost = postRepository.save(post);
 
-        return PostServiceMapper.toResponseDTO(savedPost);
+        return PostServiceMapper.toUpdatePostResponseDTO(savedPost);
     }
 }

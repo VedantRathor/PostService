@@ -51,21 +51,21 @@ public class PostController {
                 .body(new ApiResponse<GetAllPostResponseDTO>(
                         true,
                         responseDTO,
-                        "All posts are retrieved succesfully"
+                        "All posts are retrieved successfully"
                 ));
     }
 
     // To update a post
     @PutMapping("/{postId}")
-    public ResponseEntity<ApiResponse<CreatePostResponseDTO>> updatePostByPostId(@PathVariable("postId") String postId, @RequestBody UpdatePostRequestDTO requestDTO) {
+    public ResponseEntity<ApiResponse<UpdatePostResponseDTO>> updatePostByPostId(@PathVariable("postId") String postId, @RequestBody UpdatePostRequestDTO requestDTO) {
         if (postId.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, null, "Post Id is empty"));
         }
 
-        CreatePostResponseDTO responseDTO = postService.updatePostByPostId(postId, requestDTO);
+        UpdatePostResponseDTO responseDTO = postService.updatePostByPostId(postId, requestDTO);
 
         if (responseDTO == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(false, null, "Post Id doesnot exist or some error occured"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(false, null, "Post Id doesn't exist or some error occured"));
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, responseDTO, "Updation is done"));
