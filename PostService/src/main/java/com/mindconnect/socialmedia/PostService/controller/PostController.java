@@ -49,4 +49,11 @@ public class PostController {
         UpdatePostResponseDTO responseDTO = postService.updatePostByPostId(postId, requestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, responseDTO, "Updation is done"));
     }
+
+    // To delete a post
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<String>> deletePostByPostId(@PathVariable(value = "postId") @NotBlank(message = "PostId must not be blank") String postId) {
+        postService.deletePostByPostId(postId);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<String>(true, null, "Post deleted"));
+    }
 }

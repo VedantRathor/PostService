@@ -7,6 +7,7 @@ import com.mindconnect.socialmedia.PostService.mapper.PostServiceMapper;
 import com.mindconnect.socialmedia.PostService.repository.PostRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,5 +56,15 @@ public class PostService {
         PostEntity savedPost = postRepository.save(post);
 
         return PostServiceMapper.toUpdatePostResponseDTO(savedPost);
+    }
+
+    public void deletePostByPostId(String postId) {
+        // check whether post exists or not
+        PostEntity postEntity = postRepository.findByPostIdAndDeleteAtIsNull(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("PostId not found"));
+
+        // soft delete
+        postEntity.setDeletedAt(Instant.now());
+        postRepository.save(postEntity);
     }
 }
