@@ -8,7 +8,6 @@ public class PostServiceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PostServiceApplication.class, args);
-		System.out.println("iam running.....");
+		System.out.println("System running fine..");
 	}
-
 }

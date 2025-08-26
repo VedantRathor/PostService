@@ -1,4 +1,4 @@
-package com.mindconnect.socialmedia.PostService.dtos;
+package com.mindconnect.socialmedia.PostService.dto;
 
 import java.time.Instant;
 
