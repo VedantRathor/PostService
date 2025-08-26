@@ -32,7 +32,8 @@ public class PostServiceMapper {
                 postEntity.getUserId(),
                 postEntity.getCreatedAt(),
                 postEntity.getUpdatedAt(),
-                postEntity.getUpdatedBy()
+                postEntity.getUpdatedBy(),
+                postEntity.getDeletedAt()
         );
     }
 }

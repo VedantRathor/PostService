@@ -3,28 +3,45 @@ package com.mindconnect.socialmedia.PostService.dto;
 import java.util.List;
 
 public class GetAllPostResponseDTO {
-    private List<GetPostResponseDTO> posts;
-    private Integer postCounts;
+    private List<GetPostResponseDTO> activePosts;
+    private List<GetPostResponseDTO> deletedPosts;
+    private Integer activePostCounts;
+    private Integer deletedPostCounts;
 
-    public GetAllPostResponseDTO(List<GetPostResponseDTO> posts) {
-        this.posts = posts;
-        this.postCounts = posts.size();
+    public GetAllPostResponseDTO(List<GetPostResponseDTO> activePosts, List<GetPostResponseDTO> deletedPosts) {
+        this.activePosts = activePosts;
+        this.deletedPosts = deletedPosts;
+        this.activePostCounts = activePosts.size();
+        this.deletedPostCounts = deletedPosts.size();
     }
 
-    public List<GetPostResponseDTO> getPosts() {
-        return posts;
+    public List<GetPostResponseDTO> getActivePosts() {
+        return activePosts;
     }
 
-    public void setPosts(List<GetPostResponseDTO> posts) {
-        this.posts = posts;
+    public List<GetPostResponseDTO> getDeletedPosts() {
+        return deletedPosts;
     }
 
-    public void addPost(GetPostResponseDTO post) {
-        this.posts.add(post);
+    public void setActivePosts(List<GetPostResponseDTO> activePosts) {
+        this.activePosts = activePosts;
     }
 
-    public Integer getPostCounts() {
-        this.postCounts = posts.size();
-        return this.postCounts;
+    public void setDeletedPosts(List<GetPostResponseDTO> deletedPosts) {
+        this.deletedPosts = deletedPosts;
+    }
+
+    public void addActivePost(GetPostResponseDTO activePost) {
+        this.activePosts.add(activePost);
+    }
+
+    public Integer getActivePostCounts() {
+        this.activePostCounts = activePosts.size();
+        return this.activePostCounts;
+    }
+
+    public Integer getDeletedPostCounts() {
+        deletedPostCounts = deletedPosts.size();
+        return deletedPostCounts;
     }
 }

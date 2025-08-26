@@ -17,8 +17,9 @@ public class GetPostResponseDTO {
     private Instant updatedAt;
     @NotBlank(message = "UpdatedBy cannot be null or empty")
     private String updatedBy;
+    private Instant deletedAt;
 
-    public GetPostResponseDTO(String postId, String content, List<String> attachments, String creatorId, Instant createdAt, Instant updatedAt, String updatedBy) {
+    public GetPostResponseDTO(String postId, String content, List<String> attachments, String creatorId, Instant createdAt, Instant updatedAt, String updatedBy, Instant deletedAt) {
         this.postId = postId;
         this.content = content;
         this.attachments = attachments;
@@ -26,6 +27,7 @@ public class GetPostResponseDTO {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.updatedBy = updatedBy;
+        this.deletedAt = deletedAt;
     }
 
     public String getPostId() {
@@ -82,5 +84,13 @@ public class GetPostResponseDTO {
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    public void setDeletedAt(Instant deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
     }
 }

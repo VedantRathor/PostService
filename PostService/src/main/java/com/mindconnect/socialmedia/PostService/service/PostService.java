@@ -32,17 +32,24 @@ public class PostService {
 
     public GetAllPostResponseDTO getAllPostByUserId(String userId) {
         List<PostEntity> postEntities = postRepository.findAllPostsByUserId(userId);
-        List<GetPostResponseDTO> getPostResponseDTOList = new ArrayList<>();
+        List<GetPostResponseDTO> activePosts = new ArrayList<>();
+        List<GetPostResponseDTO> deletedPosts = new ArrayList<>();
 
         if (postEntities == null || postEntities.isEmpty()) {
             throw new ResourceNotFoundException("Unable to find post(s) for this user");
         }
 
         for (PostEntity postEntity: postEntities) {
-            getPostResponseDTOList.add(PostServiceMapper.toGetPostResponseDTO(postEntity));
+            GetPostResponseDTO dto = PostServiceMapper.toGetPostResponseDTO(postEntity);
+
+            if (postEntity.getDeletedAt() == null) {
+                activePosts.add(dto);
+            } else {
+                deletedPosts.add(dto);
+            }
         }
 
-        return new GetAllPostResponseDTO(getPostResponseDTOList);
+        return new GetAllPostResponseDTO(activePosts, deletedPosts);
     }
 
     public UpdatePostResponseDTO updatePostByPostId(String postId, UpdatePostRequestDTO requestDTO) {
