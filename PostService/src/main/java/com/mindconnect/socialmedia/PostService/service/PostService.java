@@ -1,9 +1,13 @@
 package com.mindconnect.socialmedia.PostService.service;
 
+import com.mindconnect.socialmedia.PostService.common.IdempotencyStatus;
 import com.mindconnect.socialmedia.PostService.dto.*;
+import com.mindconnect.socialmedia.PostService.entity.IdempotencyKeyEntity;
 import com.mindconnect.socialmedia.PostService.entity.PostEntity;
+import com.mindconnect.socialmedia.PostService.exception.ConflictOccuredException;
 import com.mindconnect.socialmedia.PostService.exception.ResourceNotFoundException;
 import com.mindconnect.socialmedia.PostService.mapper.PostServiceMapper;
+import com.mindconnect.socialmedia.PostService.repository.IdempotencyKeyRepository;
 import com.mindconnect.socialmedia.PostService.repository.PostRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +19,36 @@ import java.util.List;
 @Service
 public class PostService {
     private final PostRepository postRepository;
-    public PostService(PostRepository postRepository) {
+    private final IdempotencyKeyRepository idempotencyKeyRepository;
+
+    public PostService(PostRepository postRepository, IdempotencyKeyRepository idempotencyKeyRepository) {
         this.postRepository = postRepository;
+        this.idempotencyKeyRepository = idempotencyKeyRepository;
     }
 
-    public CreatePostResponseDTO createPost(CreatePostRequestDTO requestDTO) {
-        return PostServiceMapper.toResponseDTO(postRepository.save(PostServiceMapper.toEntity(requestDTO)));
+    public CreatePostResponseDTO createPost(CreatePostRequestDTO requestDTO, String idempotencyKey) {
+        synchronized(idempotencyKey.intern()) {
+            IdempotencyKeyEntity idempotencyKeyEntity = this.idempotencyKeyRepository
+                    .findByIdempotencyKey(idempotencyKey)
+                    .orElse(null);
+
+            if (idempotencyKeyEntity == null) {
+                idempotencyKeyEntity = idempotencyKeyRepository
+                        .save(new IdempotencyKeyEntity(idempotencyKey, IdempotencyStatus.ACTIVE));
+
+                PostEntity postEntity = postRepository.save(PostServiceMapper.toEntity(requestDTO));
+
+                idempotencyKeyEntity.setIdempotencyStatus(IdempotencyStatus.INACTIVE);
+                idempotencyKeyEntity.setResponse(PostServiceMapper.toResponseDTO(postEntity));
+                this.idempotencyKeyRepository.save(idempotencyKeyEntity);
+
+                return PostServiceMapper.toResponseDTO(postEntity);
+            } else if (idempotencyKeyEntity.getIdempotencyStatus() == IdempotencyStatus.ACTIVE) {
+                throw new ConflictOccuredException("The operation is already going on");
+            }
+
+            return idempotencyKeyEntity.getResponse();
+        }
     }
 
     public GetPostResponseDTO getPostDetailsByPostId(String postId) {

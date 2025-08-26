@@ -30,8 +30,11 @@ public class PostController {
 
     // To create a post
     @PostMapping
-    public ResponseEntity<ApiResponse<CreatePostResponseDTO>> createPost(@Valid @RequestBody CreatePostRequestDTO requestDTO) {
-        CreatePostResponseDTO responseDTO = postService.createPost(requestDTO);
+    public ResponseEntity<ApiResponse<CreatePostResponseDTO>> createPost(@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @Valid @RequestBody CreatePostRequestDTO requestDTO) {
+        if (idempotencyKey == null || idempotencyKey.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, null, "Missing Idempotency Key"));
+        }
+        CreatePostResponseDTO responseDTO = postService.createPost(requestDTO, idempotencyKey);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, responseDTO, "Post created."));
     }
 

@@ -28,4 +28,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiResponse<Object>(false, null, ex.getMessage()));
     }
+
+    @ExceptionHandler(value = ConflictOccuredException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConflictOccuredException(ConflictOccuredException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiResponse<Object>(false, null, ex.getMessage()));
+    }
 }
