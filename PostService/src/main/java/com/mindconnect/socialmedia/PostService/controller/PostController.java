@@ -18,6 +18,7 @@ public class PostController {
         this.postService = postService;
     }
 
+    // To get post details, postId is mandatory
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<GetPostResponseDTO>> getPostDetailsByPostId(@PathVariable String postId) {
         GetPostResponseDTO responseDTO = postService.getPostDetailsByPostId(postId);
@@ -30,6 +31,7 @@ public class PostController {
         return ResponseEntity.ok(new ApiResponse<>(true, responseDTO, "Post retrieved successfully"));
     }
 
+    // To create a post
     @PostMapping
     public ResponseEntity<CreatePostResponseDTO> createPost(@Valid @RequestBody CreatePostRequestDTO requestDTO) {
         CreatePostResponseDTO responseDTO = postService.createPost(requestDTO);
