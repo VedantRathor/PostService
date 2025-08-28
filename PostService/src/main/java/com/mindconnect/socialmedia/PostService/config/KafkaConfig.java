@@ -12,7 +12,7 @@ public class KafkaConfig {
     public NewTopic postEventsTopic() {
         return TopicBuilder.name(KafkaConfig.POST_EVENTS_TOPIC)
                 .partitions(3)
-                .replicas(1)
+                .replicas(3)
                 .build();
     }
 }
