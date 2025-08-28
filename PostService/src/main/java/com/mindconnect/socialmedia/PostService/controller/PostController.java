@@ -28,7 +28,7 @@ public class PostController {
         return ResponseEntity.ok(new ApiResponse<>(true, responseDTO, "Post retrieved successfully"));
     }
 
-    // To create a post
+    // To create a post; Idempotent Key is mandatory
     @PostMapping
     public ResponseEntity<ApiResponse<CreatePostResponseDTO>> createPost(@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey, @Valid @RequestBody CreatePostRequestDTO requestDTO) {
         if (idempotencyKey == null || idempotencyKey.isEmpty()) {

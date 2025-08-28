@@ -17,7 +17,7 @@ public class IdempotencyKeyEntity {
     @Indexed(unique = true)
     private String idempotencyKey;
     @CreatedDate
-    @Indexed(name = "ttl_index", expireAfter = "PT5M")
+    @Indexed(name = "ttl_index", expireAfterSeconds = 300)
     private Instant createdAt;
     @LastModifiedDate
     private Instant updatedAt;

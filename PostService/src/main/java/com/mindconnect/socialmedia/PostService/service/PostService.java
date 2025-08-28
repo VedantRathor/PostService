@@ -1,6 +1,7 @@
 package com.mindconnect.socialmedia.PostService.service;
 
 import com.mindconnect.socialmedia.PostService.common.IdempotencyStatus;
+import com.mindconnect.socialmedia.PostService.common.PostCreatedEvent;
 import com.mindconnect.socialmedia.PostService.dto.*;
 import com.mindconnect.socialmedia.PostService.entity.IdempotencyKeyEntity;
 import com.mindconnect.socialmedia.PostService.entity.PostEntity;
@@ -20,10 +21,12 @@ import java.util.List;
 public class PostService {
     private final PostRepository postRepository;
     private final IdempotencyKeyRepository idempotencyKeyRepository;
+    private final PostEventService producer;
 
-    public PostService(PostRepository postRepository, IdempotencyKeyRepository idempotencyKeyRepository) {
+    public PostService(PostRepository postRepository, IdempotencyKeyRepository idempotencyKeyRepository, PostEventService producer) {
         this.postRepository = postRepository;
         this.idempotencyKeyRepository = idempotencyKeyRepository;
+        this.producer = producer;
     }
 
     public CreatePostResponseDTO createPost(CreatePostRequestDTO requestDTO, String idempotencyKey) {
@@ -35,8 +38,16 @@ public class PostService {
             if (idempotencyKeyEntity == null) {
                 idempotencyKeyEntity = idempotencyKeyRepository
                         .save(new IdempotencyKeyEntity(idempotencyKey, IdempotencyStatus.ACTIVE));
-
                 PostEntity postEntity = postRepository.save(PostServiceMapper.toEntity(requestDTO));
+
+                // Create event from saved post
+                PostCreatedEvent event = new PostCreatedEvent(
+                        postEntity.getPostId(),
+                        postEntity.getUserId(),
+                        postEntity.getCreatedAt()
+                );
+                // send event to topic
+                producer.sendPostEvent(event);
 
                 idempotencyKeyEntity.setIdempotencyStatus(IdempotencyStatus.INACTIVE);
                 idempotencyKeyEntity.setResponse(PostServiceMapper.toResponseDTO(postEntity));
