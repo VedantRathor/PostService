@@ -1,6 +1,6 @@
 package com.mindconnect.socialmedia.PostService.controller;
 
-import com.mindconnect.socialmedia.PostService.common.ApiResponse;
+import  com.mindconnect.socialmedia.PostService.common.ApiResponse;
 import com.mindconnect.socialmedia.PostService.dto.*;
 import com.mindconnect.socialmedia.PostService.service.PostService;
 import jakarta.validation.Valid;
