@@ -27,10 +27,6 @@ public class UpdatePostRequestDTO {
         return userId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public String getEmail() {
         return email;
     }
