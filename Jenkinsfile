@@ -63,36 +63,42 @@ pipeline {
         stage('Merge to Dev (Secure)') {
     steps {
         script {
-            withCredentials([usernamePassword(credentialsId: 'creds',
-                                             usernameVariable: 'GIT_USER',
-                                             passwordVariable: 'GIT_TOKEN')]) {
+            sh """
+                set -e  # Exit immediately on any error
 
-                // URL-encode the token to avoid special character issues
-                def encodedToken = java.net.URLEncoder.encode(GIT_TOKEN, "UTF-8")
+                echo "Cleaning workspace..."
+                rm -rf PostService
 
-                sh """
-                    set -e
+                echo "Cloning repository..."
+                git clone https://github.com/VedantRathor/PostService.git
+                cd PostService
 
-                    echo "Cleaning workspace..."
-                    rm -rf PostService
+                # Configure Git identity
+                git config user.name "Jenkins CI"
+                git config user.email "jenkins@example.com"
 
-                    echo "Cloning repository securely..."
-                    git clone https://${GIT_USER}:${encodedToken}@github.com/VedantRathor/PostService.git
-                    cd PostService
+                # Checkout dev branch and pull latest
+                git checkout dev
+                git pull origin dev
 
-                    git config user.name "Jenkins CI"
-                    git config user.email "jenkins@example.com"
+                # Fetch the feature branch safely
+                git fetch origin "${BRANCH_NAME}:${BRANCH_NAME}"
 
-                    git checkout dev
-                    git pull origin dev
-                    git fetch origin "${BRANCH_NAME}:${BRANCH_NAME}"
-                    git merge --no-ff "${BRANCH_NAME}" -m "Merge ${BRANCH_NAME} into dev"
-                    git push origin dev
-                """
-            }
+                # Merge feature branch into dev
+                if git merge --no-ff "${BRANCH_NAME}" -m "Merge ${BRANCH_NAME} into dev"; then
+                    echo "Merge successful"
+                else
+                    echo "Merge failed due to conflicts. Resolve manually."
+                    exit 1
+                fi
+
+                # Push merged dev branch back to GitHub
+                git push origin dev
+            """
         }
     }
 }
+
 
     }
 
