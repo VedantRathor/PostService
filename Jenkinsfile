@@ -88,12 +88,18 @@ pipeline {
                     """
         
                     // Push to GitHub using credentials
-                    withCredentials([usernamePassword(credentialsId: '0b436d1b-d405-4ab2-8335-41894b51e430', 
-                                                     usernameVariable: 'GIT_USER', 
-                                                     passwordVariable: 'GIT_TOKEN')]) {
-                        sh 'git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/VedantRathor/PostService.git'
-                        sh 'git push origin dev'
+                    withCredentials([usernamePassword(
+                        credentialsId: '0b436d1b-d405-4ab2-8335-41894b51e430', 
+                        usernameVariable: 'GIT_USER', 
+                        passwordVariable: 'GIT_TOKEN')]) {
+                    
+                        // Set remote URL safely with quotes
+                        sh "git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/VedantRathor/PostService.git"
+                    
+                        // Now push
+                        sh "git push origin dev"
                     }
+
                 }
             }
         }
