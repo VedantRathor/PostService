@@ -24,19 +24,19 @@ pipeline {
             }
         }
 
-        // stage('Unit Tests') {
-        //     steps {
-        //         echo "Running Unit Tests..."
-        //         dir('PostService') {
-        //             sh 'mvn test'
-        //         }
-        //     }
-        //     post {
-        //         always {
-        //             junit 'PostService/target/surefire-reports/*.xml'
-        //         }
-        //     }
-        // }
+        stage('Unit Tests') {
+            steps {
+                echo "Running Unit Tests..."
+                dir('PostService') {
+                    sh 'mvn test'
+                }
+            }
+            post {
+                always {
+                    junit 'PostService/target/surefire-reports/*.xml'
+                }
+            }
+        }
 
         stage('Code Coverage (Jacoco)') {
             steps {
@@ -60,46 +60,43 @@ pipeline {
             }
         }
 
-stage('Merge to Dev (Secure HTTPS)') {
-    steps {
-        script {
-            sh """
-                set -e  # Exit immediately on any error
-
-                echo "Cleaning workspace..."
-                rm -rf PostService
-
-                echo "Cloning repository via HTTPS..."
-                git clone https://github.com/VedantRathor/PostService.git
-                cd PostService
-
-                # Configure Git identity
-                git config user.name "Jenkins CI"
-                git config user.email "jenkins@example.com"
-
-                # Checkout dev branch and pull latest changes
-                git checkout dev
-                git pull origin dev
-
-                # Fetch the feature branch
-                git fetch origin "${BRANCH_NAME}:${BRANCH_NAME}"
-
-                # Merge feature branch into dev
-                if git merge --no-ff "${BRANCH_NAME}" -m "Merge ${BRANCH_NAME} into dev"; then
-                    echo "Merge successful"
-                else
-                    echo "Merge failed due to conflicts. Resolve manually."
-                    exit 1
-                fi
-
-                # Push merged dev branch back to GitHub
-                git push origin dev
-            """
+        stage('Merge to Dev (Secure HTTPS)') {
+            steps {
+                script {
+                    sh """
+                        set -e  # Exit immediately on any error
+        
+                        echo "Cleaning workspace..."
+                        rm -rf PostService
+        
+                        echo "Cloning repository via HTTPS..."
+                        git clone https://github.com/VedantRathor/PostService.git
+                        cd PostService
+        
+                        # Configure Git identity
+                        git config user.name "Jenkins CI"
+                        git config user.email "jenkins@example.com"
+        
+                        # Checkout dev branch and pull latest changes
+                        git checkout dev
+                        git pull origin dev
+        
+                        # Fetch the feature branch
+                        git fetch origin "${BRANCH_NAME}:${BRANCH_NAME}"
+        
+                        # Merge feature branch into dev
+                        if git merge --no-ff "${BRANCH_NAME}" -m "Merge ${BRANCH_NAME} into dev"; then
+                            echo "Merge successful"
+                        else
+                            echo "Merge failed due to conflicts. Resolve manually."
+                            exit 1
+                        fi
+        
+                        # Push merged dev branch back to GitHub
+                    """
+                }
+            }
         }
-    }
-}
-
-
 
     }
 
