@@ -24,6 +24,19 @@ pipeline {
             }
         }
 
+        stage('Unit Tests') {
+            steps {
+                echo "Running Unit Tests..."
+                dir('PostService') {
+                    sh 'mvn test'
+                }
+            }
+            post {
+                always {
+                    junit 'PostService/target/surefire-reports/*.xml'
+                }
+            }
+        }
     }
 
     post {
