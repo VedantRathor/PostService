@@ -60,7 +60,7 @@ pipeline {
             }
         }
 
-        stage('Merge to Dev (Secure)') {
+stage('Merge to Dev (Secure HTTPS)') {
     steps {
         script {
             sh """
@@ -69,7 +69,7 @@ pipeline {
                 echo "Cleaning workspace..."
                 rm -rf PostService
 
-                echo "Cloning repository..."
+                echo "Cloning repository via HTTPS..."
                 git clone https://github.com/VedantRathor/PostService.git
                 cd PostService
 
@@ -77,11 +77,11 @@ pipeline {
                 git config user.name "Jenkins CI"
                 git config user.email "jenkins@example.com"
 
-                # Checkout dev branch and pull latest
+                # Checkout dev branch and pull latest changes
                 git checkout dev
                 git pull origin dev
 
-                # Fetch the feature branch safely
+                # Fetch the feature branch
                 git fetch origin "${BRANCH_NAME}:${BRANCH_NAME}"
 
                 # Merge feature branch into dev
@@ -98,6 +98,7 @@ pipeline {
         }
     }
 }
+
 
 
     }
