@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PostServiceApplication {
 
 	public static void main(String[] args) {
+        // checking CICD - third time
 		SpringApplication.run(PostServiceApplication.class, args);
 		System.out.println("System running fine..");
 	}
