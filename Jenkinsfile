@@ -14,45 +14,41 @@ pipeline {
                 checkout scm
             }
         }
-
+        
         stage('Build') {
             steps {
                 echo "Building the project..."
-                sh 'mvn clean package -DskipTests'
+                dir('PostService') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
         stage('Unit Tests') {
             steps {
                 echo "Running Unit Tests..."
-                sh 'mvn test'
+                dir('PostService') {
+                    sh 'mvn test'
+                }
             }
             post {
                 always {
-                    echo "Publishing JUnit test reports..."
-                    junit '**/target/surefire-reports/*.xml'
+                    junit 'PostService/target/surefire-reports/*.xml'
                 }
             }
         }
 
         stage('Code Coverage (Jacoco)') {
             steps {
-                echo "Running Jacoco Code Coverage..."
-                sh 'mvn jacoco:report'
-            }
-            post {
-                always {
-                    echo "Archiving Jacoco reports..."
-                    archiveArtifacts artifacts: '**/target/site/jacoco/**', fingerprint: true
+                echo "Generating code coverage..."
+                dir('PostService') {
+                    sh 'mvn jacoco:report'
                 }
-            }
-        }
-
-        stage('Static Code Analysis (SonarQube placeholder)') {
-            steps {
-                echo "Running SonarQube / static code analysis..."
-                sh 'echo "SonarQube analysis placeholder" > target/sonar-report.txt'
-                archiveArtifacts artifacts: 'target/sonar-report.txt', fingerprint: true
+                publishHTML(target: [
+                    reportDir: 'PostService/target/site/jacoco',
+                    reportFiles: 'index.html',
+                    reportName: 'Jacoco Code Coverage'
+                ])
             }
         }
 
@@ -64,20 +60,44 @@ pipeline {
             }
         }
 
-        stage('Merge to Dev (Simulated)') {
+        stage('Merge to Dev (Secure HTTPS)') {
             steps {
                 script {
-                    echo "Merging ${BRANCH_NAME} into ${DEV_BRANCH}..."
-                    // Make sure Git credentials are configured in Jenkins
                     sh """
-                        git checkout ${DEV_BRANCH}
-                        git pull origin ${DEV_BRANCH}
-                        git merge --no-ff ${BRANCH_NAME} -m "Merge ${BRANCH_NAME} into ${DEV_BRANCH}"
-                        git push origin ${DEV_BRANCH}
+                        set -e  # Exit immediately on any error
+        
+                        echo "Cleaning workspace..."
+                        rm -rf PostService
+        
+                        echo "Cloning repository via HTTPS..."
+                        git clone https://github.com/VedantRathor/PostService.git
+                        cd PostService
+        
+                        # Configure Git identity
+                        git config user.name "Jenkins CI"
+                        git config user.email "jenkins@example.com"
+        
+                        # Checkout dev branch and pull latest changes
+                        git checkout dev
+                        git pull origin dev
+        
+                        # Fetch the feature branch
+                        git fetch origin "${BRANCH_NAME}:${BRANCH_NAME}"
+        
+                        # Merge feature branch into dev
+                        if git merge --no-ff "${BRANCH_NAME}" -m "Merge ${BRANCH_NAME} into dev"; then
+                            echo "Merge successful"
+                        else
+                            echo "Merge failed due to conflicts. Resolve manually."
+                            exit 1
+                        fi
+        
+                        # Push merged dev branch back to GitHub
                     """
                 }
             }
         }
+
     }
 
     post {
