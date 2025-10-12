@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // The branch that triggered the build
+        // The branch that triggered the builds - main
         BRANCH_NAME = "${env.BRANCH_NAME ?: 'feature/unknown'}"
         DEV_BRANCH = "dev"
     }
