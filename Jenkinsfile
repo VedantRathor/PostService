@@ -83,15 +83,23 @@ pipeline {
                     """
         
                     // Push inside credentials block
-                    withCredentials([usernamePassword(credentialsId: '0b436d1b-d405-4ab2-8335-41894b51e430', 
+                    withCredentials([usernamePassword(credentialsId: 'creds', 
                                                      usernameVariable: 'GIT_USER', 
                                                      passwordVariable: 'GIT_TOKEN')]) {
                         sh '''
-                            echo "Configuring remote..."
+                            git config user.name "Jenkins CI"
+                            git config user.email "jenkins@example.com"
+                    
+                            # Ensure remote exists
+                            git remote add origin https://$GIT_USER:$GIT_TOKEN@github.com/VedantRathor/PostService.git || \
                             git remote set-url origin https://$GIT_USER:$GIT_TOKEN@github.com/VedantRathor/PostService.git
+                    
+                            git checkout dev
+                            git pull origin dev
                             git push origin dev
                         '''
                     }
+
 
                 }
             }
