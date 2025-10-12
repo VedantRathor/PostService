@@ -37,6 +37,20 @@ pipeline {
                 }
             }
         }
+
+        stage('Code Coverage (Jacoco)') {
+            steps {
+                echo "Generating code coverage..."
+                dir('PostService') {
+                    sh 'mvn jacoco:report'
+                }
+                publishHTML(target: [
+                    reportDir: 'PostService/target/site/jacoco',
+                    reportFiles: 'index.html',
+                    reportName: 'Jacoco Code Coverage'
+                ])
+            }
+        }
     }
 
     post {
