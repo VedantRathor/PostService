@@ -51,6 +51,15 @@ pipeline {
                 ])
             }
         }
+
+        stage('Static Code Analysis (SonarQube placeholder)') {
+            steps {
+                echo "Running SonarQube / static code analysis..."
+                dir('PostService') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=PostService -Dsonar.host.url=http://localhost:9000 -Dsonar.login=<TOKEN>'
+                }
+             }
+         }
     }
 
     post {
