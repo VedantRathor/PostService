@@ -60,54 +60,27 @@ pipeline {
             }
         }
 
-        stage('Merge to Dev (Simulated)') {
-            steps {
-                script {
-                    echo "Merging ${BRANCH_NAME} into dev..."
-        
-                    sh '''
-                        git config user.name "Jenkins CI"
-                        git config user.email "jenkins@example.com"
-                    '''
-        
-                    sh 'git checkout dev'
-                    sh 'git pull origin dev'
-                    sh "git fetch origin ${BRANCH_NAME}:${BRANCH_NAME}"
-        
-                    sh """
-                        if git merge --no-ff ${BRANCH_NAME} -m 'Merge ${BRANCH_NAME} into dev'; then
-                            echo "Merge successful"
-                        else
-                            echo "Merge failed or conflicts detected. Resolve manually."
-                        fi
-                    """
-        
-                    // Push inside credentials block
-                    stage('Merge to Dev (Secure)') {
-                        steps {
-                            withCredentials([usernamePassword(credentialsId: 'creds',
-                                                             usernameVariable: 'GIT_USER',
-                                                             passwordVariable: 'GIT_TOKEN')]) {
-                                sh '''
-                                    rm -rf PostService
-                                    git clone https://$GIT_USER:$GIT_TOKEN@github.com/VedantRathor/PostService.git
-                                    cd PostService
-                                    git config user.name "Jenkins CI"
-                                    git config user.email "jenkins@example.com"
-                                    git checkout dev
-                                    git pull origin dev
-                                    git fetch origin ${BRANCH_NAME}:${BRANCH_NAME}
-                                    git merge --no-ff ${BRANCH_NAME} -m "Merge ${BRANCH_NAME} into dev"
-                                    git push origin dev
-                                '''
-                            }
-                        }
-                    }
-                }
-            }
+        stage('Merge to Dev (Secure)') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'creds',
+                                         usernameVariable: 'GIT_USER',
+                                         passwordVariable: 'GIT_TOKEN')]) {
+            // All shell commands directly, no inner steps
+            sh '''
+                rm -rf PostService
+                git clone https://$GIT_USER:$GIT_TOKEN@github.com/VedantRathor/PostService.git
+                cd PostService
+                git config user.name "Jenkins CI"
+                git config user.email "jenkins@example.com"
+                git checkout dev
+                git pull origin dev
+                git fetch origin ${BRANCH_NAME}:${BRANCH_NAME}
+                git merge --no-ff ${BRANCH_NAME} -m "Merge ${BRANCH_NAME} into dev"
+                git push origin dev
+            '''
         }
-
-
+    }
+}
 
     }
 
