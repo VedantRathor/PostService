@@ -51,6 +51,29 @@ pipeline {
                 ])
             }
         }
+
+        stage('Approval for Merge to Dev') {
+            steps {
+                script {
+                    input message: "Approve merge of ${BRANCH_NAME} into ${DEV_BRANCH}?", ok: 'Approve'
+                }
+            }
+        }
+
+        stage('Merge to Dev (Simulated)') {
+            steps {
+                script {
+                    echo "Merging ${BRANCH_NAME} into ${DEV_BRANCH}..."
+                    // Make sure Git credentials are configured in Jenkins
+                    sh """
+                        git checkout ${DEV_BRANCH}
+                        git pull origin ${DEV_BRANCH}
+                        git merge --no-ff ${BRANCH_NAME} -m "Merge ${BRANCH_NAME} into ${DEV_BRANCH}"
+                        git push origin ${DEV_BRANCH}
+                    """
+                }
+            }
+        }
     }
 
     post {
