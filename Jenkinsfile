@@ -88,7 +88,7 @@ pipeline {
                     """
         
                     // Push to GitHub using credentials
-                    withCredentials([usernamePassword(credentialsId: 'github-creds', 
+                    withCredentials([usernamePassword(credentialsId: 'creds', 
                                                      usernameVariable: 'GIT_USER', 
                                                      passwordVariable: 'GIT_TOKEN')]) {
                         sh """
