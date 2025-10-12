@@ -66,9 +66,8 @@ stage('Merge to Dev (Secure)') {
                                              usernameVariable: 'GIT_USER',
                                              passwordVariable: 'GIT_TOKEN')]) {
 
-                // Use double-quotes for Groovy interpolation of BRANCH_NAME
                 sh """
-                    set -e  # Exit on any error
+                    set -e  # Exit immediately if any command fails
 
                     echo "Cleaning workspace..."
                     rm -rf PostService
@@ -81,11 +80,11 @@ stage('Merge to Dev (Secure)') {
                     git config user.name "Jenkins CI"
                     git config user.email "jenkins@example.com"
 
-                    # Checkout dev branch
+                    # Checkout dev branch and pull latest
                     git checkout dev
                     git pull origin dev
 
-                    # Fetch feature branch safely
+                    # Fetch the feature branch safely
                     git fetch origin "${BRANCH_NAME}:${BRANCH_NAME}"
 
                     # Merge feature branch into dev
@@ -96,13 +95,14 @@ stage('Merge to Dev (Secure)') {
                         exit 1
                     fi
 
-                    # Push merged dev branch
+                    # Push merged dev branch back to GitHub
                     git push origin dev
                 """
             }
         }
     }
 }
+
 
 
     }
