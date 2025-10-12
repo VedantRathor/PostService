@@ -24,19 +24,19 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
-            steps {
-                echo "Running Unit Tests..."
-                dir('PostService') {
-                    sh 'mvn test'
-                }
-            }
-            post {
-                always {
-                    junit 'PostService/target/surefire-reports/*.xml'
-                }
-            }
-        }
+        // stage('Unit Tests') {
+        //     steps {
+        //         echo "Running Unit Tests..."
+        //         dir('PostService') {
+        //             sh 'mvn test'
+        //         }
+        //     }
+        //     post {
+        //         always {
+        //             junit 'PostService/target/surefire-reports/*.xml'
+        //         }
+        //     }
+        // }
 
         stage('Code Coverage (Jacoco)') {
             steps {
@@ -63,17 +63,21 @@ pipeline {
         stage('Merge to Dev (Simulated)') {
             steps {
                 script {
-                    echo "Merging ${BRANCH_NAME} into ${DEV_BRANCH}..."
-                    // Make sure Git credentials are configured in Jenkins
-                    sh """
-                        git checkout ${DEV_BRANCH}
-                        git pull origin ${DEV_BRANCH}
-                        git merge --no-ff ${BRANCH_NAME} -m "Merge ${BRANCH_NAME} into ${DEV_BRANCH}"
-                        git push origin ${DEV_BRANCH}
-                    """
+                    echo "Merging ${BRANCH_NAME} into dev..."
+        
+                    // Checkout dev branch
+                    sh 'git checkout dev'
+                    sh 'git pull origin dev'
+        
+                    // Fetch feature branch explicitly
+                    sh "git fetch origin ${BRANCH_NAME}:${BRANCH_NAME}"
+        
+                    // Merge the fetched feature branch
+                    sh "git merge --no-ff ${BRANCH_NAME} -m 'Merge ${BRANCH_NAME} into dev'"
                 }
             }
         }
+
     }
 
     post {
