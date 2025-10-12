@@ -83,14 +83,16 @@ pipeline {
                     """
         
                     // Push inside credentials block
-                    withCredentials([usernamePassword(credentialsId: 'creds',
-                                                     usernameVariable: 'GIT_USER',
+                    withCredentials([usernamePassword(credentialsId: '0b436d1b-d405-4ab2-8335-41894b51e430', 
+                                                     usernameVariable: 'GIT_USER', 
                                                      passwordVariable: 'GIT_TOKEN')]) {
                         sh '''
+                            echo "Configuring remote..."
                             git remote set-url origin https://$GIT_USER:$GIT_TOKEN@github.com/VedantRathor/PostService.git
                             git push origin dev
                         '''
                     }
+
                 }
             }
         }
