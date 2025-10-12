@@ -14,6 +14,16 @@ pipeline {
                 checkout scm
             }
         }
+        
+        stage('Build') {
+            steps {
+                echo "Building the project..."
+                dir('PostService') {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+
     }
 
     post {
