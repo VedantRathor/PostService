@@ -65,6 +65,12 @@ pipeline {
                 script {
                     echo "Merging ${BRANCH_NAME} into dev..."
         
+                    // Configure Git identity for commits/merges
+                    sh '''
+                        git config user.name "Jenkins CI"
+                        git config user.email "jenkins@example.com"
+                    '''
+        
                     // Checkout dev branch
                     sh 'git checkout dev'
                     sh 'git pull origin dev'
@@ -73,10 +79,25 @@ pipeline {
                     sh "git fetch origin ${BRANCH_NAME}:${BRANCH_NAME}"
         
                     // Merge the fetched feature branch
-                    sh "git merge --no-ff ${BRANCH_NAME} -m 'Merge ${BRANCH_NAME} into dev'"
+                    sh """
+                        if git merge --no-ff ${BRANCH_NAME} -m 'Merge ${BRANCH_NAME} into dev'; then
+                            echo "Merge successful"
+                        else
+                            echo "Merge failed or conflicts detected. Resolve manually."
+                        fi
+                    """
+        
+                    // Push to GitHub using credentials
+                    withCredentials([usernamePassword(credentialsId: '0b436d1b-d405-4ab2-8335-41894b51e430', 
+                                                     usernameVariable: 'GIT_USER', 
+                                                     passwordVariable: 'GIT_TOKEN')]) {
+                        sh 'git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/VedantRathor/PostService.git'
+                        sh 'git push origin dev'
+                    }
                 }
             }
         }
+
 
     }
 
